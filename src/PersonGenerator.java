@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class PersonGenerator {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ArrayList<String> persons = new ArrayList<>();
+        ArrayList<Person> persons = new ArrayList<>();
         boolean morePersons = true;
 
         while (morePersons) {
@@ -19,21 +19,37 @@ public class PersonGenerator {
             String title = SafeInput.getNonZeroLenString(scanner, "Enter Title");
             int yearOfBirth = SafeInput.getInt(scanner, "Enter Year of Birth");
 
-            String personRecord = String.format("%s, %s, %s, %s, %d", id, firstName, lastName, title, yearOfBirth);
-            persons.add(personRecord);
+            Person person = new Person(id, firstName, lastName, title, yearOfBirth);
+            persons.add(person);
 
             morePersons = SafeInput.getYNConfirm(scanner, "Do you want to add another person?");
         }
 
-        String fileName = SafeInput.getNonZeroLenString(scanner, "Enter the file name to save the data");
-        saveToFile(persons, fileName);
+        String fileName = SafeInput.getNonZeroLenString(scanner, "Enter the base file name (without extension)");
+
+        String format = SafeInput.getRegExString(scanner, "Enter format (CSV, JSON, or XML)", "^(CSV|JSON|XML)$");
+
+        switch (format.toUpperCase()) {
+            case "CSV":
+                saveToCSV(persons, fileName + ".csv");
+                break;
+            case "JSON":
+                saveAsJSON(persons, fileName + ".json");
+                break;
+            case "XML":
+                saveAsXML(persons, fileName + ".xml");
+                break;
+            default:
+                System.out.println("Invalid format.");
+                break;
+        }
     }
 
-    private static void saveToFile(ArrayList<String> persons, String fileName) {
+    private static void saveToCSV(ArrayList<Person> persons, String fileName) {
         Path path = Path.of(fileName);
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
-            for (String person : persons) {
-                writer.write(person);
+            for (Person person : persons) {
+                writer.write(person.toCSV());
                 writer.newLine();
             }
             System.out.println("Data saved to " + fileName);
@@ -42,4 +58,39 @@ public class PersonGenerator {
             e.printStackTrace();
         }
     }
+
+    public static void saveAsJSON(ArrayList<Person> persons, String fileName) {
+        Path path = Path.of(fileName);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
+            for (Person person : persons) {
+                writer.write(person.toJSON());  // Convert to JSON
+                writer.newLine();
+            }
+            System.out.println("Data saved to JSON file: " + fileName);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the data.");
+            e.printStackTrace();
+        }
+    }
+    public static void saveAsXML(ArrayList<Person> persons, String fileName) {
+        Path path = Path.of(fileName);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE)) {
+            writer.write("<Persons>");
+            writer.newLine();
+
+            for (Person person : persons) {
+                writer.write(person.toXML());
+                writer.newLine();
+            }
+
+            writer.write("</Persons>");
+            writer.newLine();
+
+            System.out.println("Data saved to XML file: " + fileName);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the data.");
+            e.printStackTrace();
+        }
+    }
 }
+

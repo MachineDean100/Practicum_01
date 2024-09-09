@@ -10,7 +10,7 @@ public class Product {
         this.description = description;
         this.cost = cost;
     }
-public String getId() {
+    public String getId() {
         return id;
     }
     public String getProductName() {
@@ -23,8 +23,33 @@ public String getId() {
         return cost;
     }
 
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
     @Override
     public String toString() {
         return String.format("%s, %s, %s, %f", id, productName, description, cost);
+
+}
+    public String toCSV() {
+        return String.format("%s, %s, %s, %f", id, productName, description, cost);
+    }
+    public String toJSON() {
+        return String.format("{\"id\": \"%s\", \"productName\": \"%s\", \"description\": \"%s\", \"cost\": %f}",
+                id, productName, description, cost);
+    }
+    public String toXML() {
+        return String.format("<Product id=\"%s\">\n" +
+                "    <productName>%s</productName>\n" +
+                "    <description>%s</description>\n" +
+                "    <cost>%s</cost>\n" +
+                "</Product>", id, productName, description, cost);
     }
 }
